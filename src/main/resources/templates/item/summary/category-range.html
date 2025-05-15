@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::div.content})}">
+<body>
+<div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 th:text="${priceRange.categoryName} + ' 카테고리 가격 범위'">카테고리 가격 범위</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">최저가 브랜드</h5>
+                </div>
+                <div class="card-body">
+                    <h3 th:text="${priceRange.lowestPrice.brandName}">브랜드명</h3>
+                    <p class="h4 text-success"
+                       th:text="${#numbers.formatDecimal(priceRange.lowestPrice.price, 0, 'COMMA', 0, 'POINT')} + '원'">
+                        가격
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0">최고가 브랜드</h5>
+                </div>
+                <div class="card-body">
+                    <h3 th:text="${priceRange.highestPrice.brandName}">브랜드명</h3>
+                    <p class="h4 text-danger"
+                       th:text="${#numbers.formatDecimal(priceRange.highestPrice.price, 0, 'COMMA', 0, 'POINT')} + '원'">
+                        가격
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <p class="h5">가격 차이:
+            <span class="text-primary"
+                  th:text="${#numbers.formatDecimal(priceRange.highestPrice.price - priceRange.lowestPrice.price, 0, 'COMMA', 0, 'POINT')} + '원'">
+                    차이
+                </span>
+        </p>
+    </div>
+</div>
+</body>
+</html>

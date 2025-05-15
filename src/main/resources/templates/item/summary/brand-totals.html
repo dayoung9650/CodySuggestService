@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::div.content})}">
+<body>
+<div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>브랜드별 전체 카테고리 구매 총액</h2>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+            <tr>
+                <th>브랜드</th>
+                <th>총액</th>
+                <th>상세보기</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="brand : ${brandTotals}">
+                <td th:text="${brand.brandName}">브랜드</td>
+                <td class="text-end"
+                    th:text="${#numbers.formatDecimal(brand.totalPrice, 0, 'COMMA', 0, 'POINT')} + '원'">
+                    총액
+                </td>
+                <td>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            data-bs-toggle="modal"
+                            th:data-bs-target="'#detailModal' + ${brand.brandName}">
+                        상세보기
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 상세 모달 -->
+    <div th:each="brand : ${brandTotals}"
+         th:id="'detailModal' + ${brand.brandName}"
+         class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="${brand.brandName} + ' 상세 가격'">브랜드 상세</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <tr th:each="entry : ${brand.categoryPrices}">
+                            <td th:text="${entry.key}">카테고리</td>
+                            <td class="text-end"
+                                th:text="${#numbers.formatDecimal(entry.value, 0, 'COMMA', 0, 'POINT')} + '원'">
+                                가격
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: html(~{::div})}">
+<body>
+<div>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title mb-0" th:text="${item.itemId == null ? '상품 등록' : '상품 수정'}">상품 등록/수정</h3>
+        </div>
+        <div class="card-body">
+            <form th:action="${item.itemId == null ? '/items' : '/items/' + item.itemId}"
+                  method="post"
+                  class="needs-validation"
+                  novalidate>
+                <div class="mb-3">
+                    <label for="name" class="form-label">상품명</label>
+                    <input type="text"
+                           class="form-control"
+                           id="name"
+                           name="name"
+                           th:value="${item.name}"
+                           required>
+                    <div class="invalid-feedback">
+                        상품명을 입력해주세요.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="brandId" class="form-label">브랜드</label>
+                    <select class="form-select"
+                            id="brandId"
+                            name="brandId"
+                            required>
+                        <option value="">선택하세요</option>
+                        <option th:each="brand : ${brands}"
+                                th:value="${brand.brandId}"
+                                th:text="${brand.brandName}"
+                                th:selected="${item.brand != null && item.brand.brandId == brand.brandId}">
+                        </option>
+                    </select>
+                    <div class="invalid-feedback">
+                        브랜드를 선택해주세요.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="categoryId" class="form-label">카테고리</label>
+                    <select class="form-select"
+                            id="categoryId"
+                            name="categoryId"
+                            required>
+                        <option value="">선택하세요</option>
+                        <option th:each="category : ${categories}"
+                                th:value="${category.categoryId}"
+                                th:text="${category.categoryName}"
+                                th:selected="${item.category != null && item.category.categoryId == category.categoryId}">
+                        </option>
+                    </select>
+                    <div class="invalid-feedback">
+                        카테고리를 선택해주세요.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="price" class="form-label">가격</label>
+                    <div class="input-group">
+                        <input type="number"
+                               class="form-control"
+                               id="price"
+                               name="price"
+                               th:value="${item.price}"
+                               required>
+                        <span class="input-group-text">원</span>
+                        <div class="invalid-feedback">
+                            가격을 입력해주세요.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="/items" class="btn btn-secondary">취소</a>
+                    <button type="submit" class="btn btn-primary">
+                        [[${item.itemId == null ? '등록' : '수정'}]]
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Form Validation Script -->
+<script>
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+</body>
+</html>

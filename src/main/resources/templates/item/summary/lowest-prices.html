@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::div.content})}">
+<body>
+<div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>카테고리별 최저가격 브랜드</h2>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+            <tr>
+                <th>카테고리</th>
+                <th>브랜드</th>
+                <th>가격</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${lowestPrices}">
+                <td th:text="${item.categoryName}">카테고리</td>
+                <td th:text="${item.brandName}">브랜드</td>
+                <td class="text-end"
+                    th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + '원'">
+                    가격
+                </td>
+            </tr>
+            <tr class="table-primary">
+                <td colspan="2"><strong>총액</strong></td>
+                <td class="text-end">
+                    <strong th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + '원'">
+                        총액
+                    </strong>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
