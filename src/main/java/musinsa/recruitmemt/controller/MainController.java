@@ -14,11 +14,7 @@ public class MainController {
     private final ItemService itemService;
     private final CategoryService categoryService;
     @GetMapping("/")
-    public String index(Model model) {
-        model.addAttribute("categories", categoryService.findAll());
-        model.addAttribute("brandCount", brandService.count());
-        model.addAttribute("itemCount", itemService.count());
-        model.addAttribute("categoryCount", categoryService.count());
-        return "index";
+    public String home() {
+        return "redirect:/items";
     }
 }
