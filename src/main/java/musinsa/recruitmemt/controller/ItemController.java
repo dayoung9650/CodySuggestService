@@ -112,4 +112,16 @@ public class ItemController {
         itemService.delete(id);
         return "redirect:/items";
     }
+
+    @GetMapping("/brands/new")
+    public String createBrandForm(Model model) {
+        model.addAttribute("brand", new Brand());
+        return "item/brand-form";
+    }
+
+    @PostMapping("/brands")
+    public String createBrand(@ModelAttribute Brand brand) {
+        brandService.save(brand);
+        return "redirect:/items";
+    }
 }
