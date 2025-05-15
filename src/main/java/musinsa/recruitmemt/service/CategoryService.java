@@ -27,6 +27,10 @@ public class CategoryService {
         return categoryRepository.count();
     }
 
+    public Category findByCategoryName(String categoryName) {
+        return categoryRepository.findByCategoryName(categoryName)
+                .orElseThrow(() -> new RuntimeException("카테고리를 찾을 수 없습니다: " + categoryName));
+    }
 
     @Transactional
     public Category save(Category category) {

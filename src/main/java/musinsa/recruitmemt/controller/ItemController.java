@@ -2,7 +2,11 @@ package musinsa.recruitmemt.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import musinsa.recruitmemt.Dto.*;
+import musinsa.recruitmemt.dto.BrandCreateDto;
+import musinsa.recruitmemt.dto.BrandTotalPriceDto;
+import musinsa.recruitmemt.dto.CategoryMinPriceDto;
+import musinsa.recruitmemt.dto.CategoryPriceRangeDto;
+import musinsa.recruitmemt.dto.PriceTableDto;
 import musinsa.recruitmemt.model.Brand;
 import musinsa.recruitmemt.model.Category;
 import musinsa.recruitmemt.model.Item;
@@ -32,9 +36,9 @@ public class ItemController {
         List<Item> items = itemService.findAll();
 
         // 가격표 데이터 생성
-        List<PriceTable> priceTable = brands.stream()
+        List<PriceTableDto> priceTableDto = brands.stream()
                 .map(brand -> {
-                    PriceTable dto = new PriceTable(brand.getBrandName());
+                    PriceTableDto dto = new PriceTableDto(brand.getBrandName());
                     Map<String, Integer> prices = items.stream()
                             .filter(item -> item.getBrand().getBrandId().equals(brand.getBrandId()))
                             .collect(Collectors.toMap(
@@ -46,7 +50,7 @@ public class ItemController {
                 })
                 .collect(Collectors.toList());
 
-        model.addAttribute("priceTable", priceTable);
+        model.addAttribute("priceTable", priceTableDto);
         model.addAttribute("categories", categories);
         return "item/list";
     }
@@ -113,15 +117,29 @@ public class ItemController {
         return "redirect:/items";
     }
 
-    @GetMapping("/brands/new")
-    public String createBrandForm(Model model) {
-        model.addAttribute("brand", new Brand());
-        return "item/brand-form";
-    }
-
     @PostMapping("/brands")
-    public String createBrand(@ModelAttribute Brand brand) {
+    public String createBrandWithItems(@ModelAttribute BrandCreateDto brandCreateDto) {
+        // 브랜드 생성
+        Brand brand = new Brand();
+        brand.setBrandName(brandCreateDto.getBrandName());
         brandService.save(brand);
+
+        // 각 카테고리별 상품 생성
+        brandCreateDto.getItems().forEach((categoryName, itemInfo) -> {
+            if (itemInfo.getName() != null && !itemInfo.getName().trim().isEmpty() 
+                && itemInfo.getPrice() != null) {
+                Category category = categoryService.findByCategoryName(categoryName);
+                
+                Item item = new Item();
+                item.setName(itemInfo.getName());
+                item.setPrice(itemInfo.getPrice());
+                item.setBrand(brand);
+                item.setCategory(category);
+                
+                itemService.save(item, brand.getBrandId());
+            }
+        });
+
         return "redirect:/items";
     }
 }
