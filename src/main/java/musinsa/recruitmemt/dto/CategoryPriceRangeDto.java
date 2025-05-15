@@ -1,4 +1,4 @@
-package musinsa.recruitmemt.Dto;
+package musinsa.recruitmemt.dto;
 
 import lombok.Getter;
 import lombok.Setter;
