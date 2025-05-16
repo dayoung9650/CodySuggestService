@@ -1,6 +1,7 @@
 package musinsa.recruitmemt.controller;
 
 import lombok.RequiredArgsConstructor;
+import musinsa.recruitmemt.dto.BrandTotalPriceDto;
 import musinsa.recruitmemt.dto.PriceTableDto;
 import musinsa.recruitmemt.model.Brand;
 import musinsa.recruitmemt.model.Category;
@@ -24,31 +25,14 @@ public class MainController {
     private final CategoryService categoryService;
 
     @GetMapping("/")
-    public String home(Model model) {
+    public String main(Model model) {
         List<Brand> brands = brandService.findAll();
         List<Category> categories = categoryService.findAll();
-        List<Item> items = itemService.findAll();
+        List<BrandTotalPriceDto> priceTable = itemService.findLatestPricesByBrand();
 
-        // 가격표 데이터 생성 (각 브랜드/카테고리 조합별 최신 상품만)
-        List<PriceTableDto> priceTableDto = brands.stream()
-                .map(brand -> {
-                    PriceTableDto dto = new PriceTableDto(brand.getBrandName());
-                    Map<String, Integer> prices = items.stream()
-                            .filter(item -> item.getBrand().getBrandId().equals(brand.getBrandId()))
-                            .collect(Collectors.groupingBy(
-                                    item -> item.getCategory().getCategoryName(),
-                                    Collectors.collectingAndThen(
-                                            Collectors.maxBy((i1, i2) -> i1.getInsertTime().compareTo(i2.getInsertTime())),
-                                            optionalItem -> optionalItem.map(Item::getPrice).orElse(null)
-                                    )
-                            ));
-                    dto.setCategoryPrices(prices);
-                    return dto;
-                })
-                .collect(Collectors.toList());
-
-        model.addAttribute("priceTable", priceTableDto);
+        model.addAttribute("priceTable", priceTable);
         model.addAttribute("categories", categories);
-        return "home";
+        model.addAttribute("brands", brands);
+        return "main";
     }
 }
