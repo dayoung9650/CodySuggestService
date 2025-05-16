@@ -8,4 +8,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findByCategoryCategoryName(String categoryName);
 
+
+    List<Item> findByCategoryCategoryId(Long categoryId);
+
+    List<Item> findByBrandBrandIdAndCategoryCategoryId(Long brandId, Long categoryId);
+
 }

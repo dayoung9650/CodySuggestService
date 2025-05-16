@@ -35,7 +35,16 @@ public class ItemService {
         return itemRepository.findByBrandBrandId(brandId);
     }
 
+    public List<Item> findByCategoryName(String categoryName) {
+        return itemRepository.findByCategoryCategoryName(categoryName);
+    }
+    public List<Item> findByCategoryId(Long categoryId) {
+        return itemRepository.findByCategoryCategoryId(categoryId);
+    }
 
+    public List<Item> findByBrandIdAndCategoryId(Long brandId, Long categoryId) {
+        return itemRepository.findByBrandBrandIdAndCategoryCategoryId(brandId, categoryId);
+    }
 
     @Transactional
     public Item save(Item item, Long brandId) {
