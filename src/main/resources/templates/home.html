@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::div.content}, ~{})}">
+<body>
+<div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>코디 요약</h2>
+    </div>
+
+    <!-- 가격표 테이블 -->
+    <div class="table-responsive mb-4">
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+            <tr>
+                <th>브랜드</th>
+                <th th:each="category : ${categories}" th:text="${category.categoryName}">카테고리명</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${priceTable}">
+                <td th:text="${row.brandName}">브랜드명</td>
+                <td th:each="category : ${categories}"
+                    class="text-end"
+                    th:text="${row.categoryPrices.containsKey(category.categoryName) ?
+                                    #numbers.formatDecimal(row.categoryPrices.get(category.categoryName), 0, 'COMMA', 0, 'POINT') + '원' : '-'}">
+                    가격
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 통계 링크 -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <a href="/items/lowest-prices" class="card text-decoration-none">
+                <div class="card-body">
+                    <h5 class="card-title">카테고리별 최저가격</h5>
+                    <p class="card-text">각 카테고리의 최저가격 브랜드 확인</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/items/brand-totals" class="card text-decoration-none">
+                <div class="card-body">
+                    <h5 class="card-title">브랜드별 총액</h5>
+                    <p class="card-text">브랜드별 전체 상품 구매 시 총액</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">카테고리 가격 범위</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle w-100"
+                                type="button"
+                                data-bs-toggle="dropdown">
+                            카테고리 선택
+                        </button>
+                        <ul class="dropdown-menu w-100">
+                            <li th:each="category : ${categories}">
+                                <a class="dropdown-item"
+                                   th:href="@{/items/category-range(categoryName=${category.categoryName})}"
+                                   th:text="${category.categoryName}">
+                                    카테고리명
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html> 
