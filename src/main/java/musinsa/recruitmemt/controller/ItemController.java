@@ -30,28 +30,28 @@ public class ItemController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public String list(Model model) {
+    public String list(Model model, 
+                      @RequestParam(required = false) Long brandId,
+                      @RequestParam(required = false) Long categoryId) {
         List<Brand> brands = brandService.findAll();
         List<Category> categories = categoryService.findAll();
-        List<Item> items = itemService.findAll();
+        List<Item> items;
 
-        // 가격표 데이터 생성
-        List<PriceTableDto> priceTableDto = brands.stream()
-                .map(brand -> {
-                    PriceTableDto dto = new PriceTableDto(brand.getBrandName());
-                    Map<String, Integer> prices = items.stream()
-                            .filter(item -> item.getBrand().getBrandId().equals(brand.getBrandId()))
-                            .collect(Collectors.toMap(
-                                    item -> item.getCategory().getCategoryName(),
-                                    Item::getPrice
-                            ));
-                    dto.setCategoryPrices(prices);
-                    return dto;
-                })
-                .collect(Collectors.toList());
+        if(brandId == null && categoryId == null){
+            items = itemService.findAll();
+        } else if(brandId != null && categoryId != null){
+            items = itemService.findByBrandIdAndCategoryId(brandId, categoryId);
+        } else if(categoryId != null){
+            items = itemService.findByCategoryId(categoryId);
+        } else {
+            items = itemService.findByBrandId(brandId);
+        }
 
-        model.addAttribute("priceTable", priceTableDto);
+        model.addAttribute("items", items);
+        model.addAttribute("brands", brands);
         model.addAttribute("categories", categories);
+        model.addAttribute("selectedBrandId", brandId);
+        model.addAttribute("selectedCategoryId", categoryId);
         return "item/list";
     }
 
@@ -88,11 +88,14 @@ public class ItemController {
     public String createForm(Model model) {
         model.addAttribute("item", new Item());
         model.addAttribute("brands", brandService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         return "item/form";
     }
 
     @PostMapping
-    public String create(@ModelAttribute Item item, @RequestParam Long brandId) {
+    public String create(@ModelAttribute Item item, @RequestParam Long brandId, @RequestParam Long categoryId) {
+        Category category = categoryService.findById(categoryId);
+        item.setCategory(category);
         itemService.save(item, brandId);
         return "redirect:/items";
     }
@@ -101,12 +104,15 @@ public class ItemController {
     public String editForm(@PathVariable Long id, Model model) {
         model.addAttribute("item", itemService.findById(id));
         model.addAttribute("brands", brandService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         return "item/form";
     }
 
     @PostMapping("/{id}")
-    public String update(@PathVariable Long id, @ModelAttribute Item item, @RequestParam Long brandId) {
+    public String update(@PathVariable Long id, @ModelAttribute Item item, @RequestParam Long brandId, @RequestParam Long categoryId) {
         item.setItemId(id);
+        Category category = categoryService.findById(categoryId);
+        item.setCategory(category);
         itemService.save(item, brandId);
         return "redirect:/items";
     }
@@ -140,6 +146,14 @@ public class ItemController {
             }
         });
 
+        return "redirect:/items";
+    }
+
+    @PostMapping("/brand")
+    public String createBrand(@RequestParam String brandName) {
+        Brand brand = new Brand();
+        brand.setBrandName(brandName);
+        brandService.save(brand);
         return "redirect:/items";
     }
 }

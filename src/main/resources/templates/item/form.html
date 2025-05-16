@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/layout :: layout(~{::div}, ~{})}">
+      th:replace="~{layout/layout :: layout(~{::div})}">
 <body>
 <div>
     <div class="card">
         <div class="card-header">
             <h3 class="card-title mb-0" th:text="${item.itemId == null ? '상품 등록' : '상품 수정'}">상품 등록/수정</h3>
         </div>
+
         <div class="card-body">
             <form th:action="${item.itemId == null ? '/items' : '/items/' + item.itemId}"
                   method="post"

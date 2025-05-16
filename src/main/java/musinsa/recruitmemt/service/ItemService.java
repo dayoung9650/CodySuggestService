@@ -35,7 +35,21 @@ public class ItemService {
         return itemRepository.findByBrandBrandId(brandId);
     }
 
+    public List<Item> findByCategoryName(String categoryName) {
+        return itemRepository.findByCategoryCategoryName(categoryName);
+    }
+    public List<Item> findByCategoryId(Long categoryId) {
+        return itemRepository.findByCategoryCategoryId(categoryId);
+    }
 
+    public List<Item> findByBrandIdAndCategoryId(Long brandId, Long categoryId) {
+        return itemRepository.findByBrandBrandIdAndCategoryCategoryId(brandId, categoryId);
+    }
+
+    // 가격 범위로 상품 조회
+    public List<Item> findByPriceRange(int minPrice, int maxPrice) {
+        return itemRepository.findByPriceBetween(minPrice, maxPrice);
+    }
 
     @Transactional
     public Item save(Item item, Long brandId) {
@@ -119,6 +133,47 @@ public class ItemService {
         ));
 
         return dto;
+    }
+
+    // 최신 상품 기준 브랜드별 카테고리 가격 조회
+    public List<BrandTotalPriceDto> findLatestPricesByBrand() {
+        List<Item> allItems = itemRepository.findAll();
+
+        // 브랜드별, 카테고리별로 최신 상품만 필터링
+        Map<String, Map<String, Item>> latestItems = allItems.stream()
+                .collect(Collectors.groupingBy(
+                        item -> item.getBrand().getBrandName(),
+                        Collectors.groupingBy(
+                                item -> item.getCategory().getCategoryName(),
+                                Collectors.collectingAndThen(
+                                        Collectors.maxBy(Comparator.comparing(Item::getInsertTime)),
+                                        optional -> optional.orElse(null)
+                                )
+                        )
+                ));
+
+        // 브랜드별 DTO 생성
+        return latestItems.entrySet().stream()
+                .map(brandEntry -> {
+                    String brandName = brandEntry.getKey();
+                    Map<String, Item> categoryItems = brandEntry.getValue();
+                    
+                    BrandTotalPriceDto dto = new BrandTotalPriceDto(brandName, 0);
+                    Map<String, Integer> categoryPrices = new HashMap<>();
+                    
+                    int totalPrice = 0;
+                    for (Map.Entry<String, Item> entry : categoryItems.entrySet()) {
+                        if (entry.getValue() != null) {
+                            categoryPrices.put(entry.getKey(), entry.getValue().getPrice());
+                            totalPrice += entry.getValue().getPrice();
+                        }
+                    }
+                    
+                    dto.setTotalPrice(totalPrice);
+                    dto.setCategoryPrices(categoryPrices);
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     public long count() {

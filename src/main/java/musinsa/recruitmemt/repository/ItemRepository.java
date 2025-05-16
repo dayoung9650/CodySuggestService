@@ -8,4 +8,11 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findByCategoryCategoryName(String categoryName);
 
+
+    List<Item> findByCategoryCategoryId(Long categoryId);
+
+    List<Item> findByBrandBrandIdAndCategoryCategoryId(Long brandId, Long categoryId);
+
+    // 가격 범위로 상품 조회
+    List<Item> findByPriceBetween(Integer minPrice, Integer maxPrice);
 }
