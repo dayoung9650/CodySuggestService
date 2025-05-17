@@ -2,10 +2,15 @@ package musinsa.recruitmemt.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import musinsa.recruitmemt.model.Brand;
+import musinsa.recruitmemt.dto.BrandTotalPriceDto;
+import musinsa.recruitmemt.exception.NoItemsFoundException;
+import musinsa.recruitmemt.exception.PriceNotDefinedException;
 import musinsa.recruitmemt.repository.BrandRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Comparator;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -69,4 +74,5 @@ public class BrandService {
             throw e;
         }
     }
+
 }

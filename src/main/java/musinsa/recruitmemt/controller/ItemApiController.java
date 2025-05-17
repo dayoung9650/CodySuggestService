@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import musinsa.recruitmemt.dto.BrandTotalPriceDto;
 import musinsa.recruitmemt.dto.CategoryMinPriceDto;
 import musinsa.recruitmemt.dto.CategoryPriceRangeDto;
+import musinsa.recruitmemt.model.Brand;
 import musinsa.recruitmemt.service.ItemService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +24,10 @@ public class ItemApiController {
         return itemService.findMinPricesByCategory();
     }
 
-    // 2. 브랜드별 총액 API
-    @GetMapping("/brand-totals")
-    public List<BrandTotalPriceDto> getBrandTotals() {
-        return itemService.findTotalPricesByBrand();
+    // 2. 총액이 가장 작은 브랜드 API
+    @GetMapping("/lowest-brand")
+    public BrandTotalPriceDto getBrandTotals() {
+        return itemService.findMinTotalPricesByBrand();
     }
 
     // 3. 카테고리 가격 범위 API

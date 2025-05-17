@@ -13,6 +13,7 @@ import musinsa.recruitmemt.model.Item;
 import musinsa.recruitmemt.service.BrandService;
 import musinsa.recruitmemt.service.CategoryService;
 import musinsa.recruitmemt.service.ItemService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -155,5 +156,10 @@ public class ItemController {
         brand.setBrandName(brandName);
         brandService.save(brand);
         return "redirect:/items";
+    }
+
+    @GetMapping("/lowest-brand")
+    public ResponseEntity<BrandTotalPriceDto> findLowestTotalPriceBrand() {
+        return ResponseEntity.ok(itemService.findLowestTotalPriceBrand());
     }
 }
