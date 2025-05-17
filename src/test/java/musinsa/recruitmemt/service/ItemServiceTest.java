@@ -264,9 +264,9 @@ class ItemServiceTest {
     void findLatestPricesByBrand() {
         // given
         LocalDateTime now = LocalDateTime.now();
-        item1.setInsertTime(now.minusDays(1));  // 하루 전
-        item2.setInsertTime(now.minusHours(1)); // 1시간 전
-        item3.setInsertTime(now);               // 현재
+        item1.setUpdateTime(now.minusDays(1));  // 하루 전
+        item2.setUpdateTime(now.minusHours(1)); // 1시간 전
+        item3.setUpdateTime(now);               // 현재
 
         given(itemRepository.findAll()).willReturn(Arrays.asList(item1, item2, item3));
 
@@ -399,24 +399,24 @@ class ItemServiceTest {
         LocalDateTime now = LocalDateTime.now();
         
         // 나이키 상품들
-        item1.setInsertTime(now.minusDays(1));  // 상의 50000원 (이전 상품)
+        item1.setUpdateTime(now.minusDays(1));  // 상의 50000원 (이전 상품)
         Item newNikeTop = new Item();           // 상의 55000원 (최신 상품)
         newNikeTop.setName("나이키 신상 티셔츠");
         newNikeTop.setPrice(55000);
         newNikeTop.setBrand(brand1);
         newNikeTop.setCategory(category1);
-        newNikeTop.setInsertTime(now);
+        newNikeTop.setUpdateTime(now);
         
-        item3.setInsertTime(now);               // 하의 60000원
+        item3.setUpdateTime(now);               // 하의 60000원
         
         // 아디다스 상품들
-        item2.setInsertTime(now.minusHours(1)); // 상의 45000원
+        item2.setUpdateTime(now.minusHours(1)); // 상의 45000원
         Item newAdidasBottom = new Item();      // 하의 40000원
         newAdidasBottom.setName("아디다스 바지");
         newAdidasBottom.setPrice(40000);
         newAdidasBottom.setBrand(brand2);
         newAdidasBottom.setCategory(category2);
-        newAdidasBottom.setInsertTime(now);
+        newAdidasBottom.setUpdateTime(now);
 
         given(itemRepository.findAll()).willReturn(Arrays.asList(
             item1, item2, item3, newNikeTop, newAdidasBottom

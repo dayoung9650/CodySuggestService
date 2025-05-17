@@ -3,6 +3,7 @@ package musinsa.recruitmemt.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import musinsa.recruitmemt.model.Item;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,5 +26,16 @@ public class BrandTotalPriceDto {
         this.brandName = brandName;
         this.totalPrice = totalPrice;
         this.categoryPrices = new HashMap<>();
+    }
+
+    public static BrandTotalPriceDto of(Item item) {
+        Map<String, Integer> categoryPrices = new HashMap<>();
+        categoryPrices.put(item.getCategory().getCategoryName(), item.getPrice());
+        
+        return new BrandTotalPriceDto(
+            item.getBrand().getBrandName(),
+            categoryPrices,
+            item.getPrice()
+        );
     }
 }

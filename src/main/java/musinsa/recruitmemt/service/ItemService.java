@@ -14,6 +14,7 @@ import musinsa.recruitmemt.repository.ItemRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -95,6 +96,7 @@ public class ItemService {
         }
         
         item.setBrand(brand);
+        item.setUpdateTime(LocalDateTime.now());
         return itemRepository.save(item);
     }
 
@@ -160,7 +162,7 @@ public class ItemService {
             throw new NoItemsFoundException("브랜드별 가격 정보를 찾을 수 없습니다.");
         }
         return items.stream()
-                .filter(dto -> dto.getTotalPrice() != null)
+                .filter(dto -> dto.getTotalPrice() != 0)
                 .min(Comparator.comparing(BrandTotalPriceDto::getTotalPrice))
                 .orElseThrow(() -> new PriceNotDefinedException("가격이 정의되지 않은 브랜드가 있습니다."));
     }
@@ -199,49 +201,35 @@ public class ItemService {
     }
 
     public List<BrandTotalPriceDto> findLatestPricesByBrand() {
-        List<Item> allItems = itemRepository.findAll();
-        if (allItems.isEmpty()) {
+        List<Item> latestItems = itemRepository.findLatestItemsByBrandAndCategory();
+        if (latestItems.isEmpty()) {
             throw new NoItemsFoundException("등록된 상품이 없습니다.");
         }
 
-        Map<String, Map<String, Item>> latestItems = allItems.stream()
-                .collect(Collectors.groupingBy(
-                        item -> item.getBrand().getBrandName(),
-                        Collectors.groupingBy(
-                                item -> item.getCategory().getCategoryName(),
-                                Collectors.collectingAndThen(
-                                        Collectors.maxBy(Comparator.comparing(Item::getInsertTime)),
-                                        optional -> optional.orElse(null)
-                                )
-                        )
-                ));
+        // 브랜드별로 그룹화
+        Map<String, List<Item>> itemsByBrand = latestItems.stream()
+                .collect(Collectors.groupingBy(item -> item.getBrand().getBrandName()));
 
-        if (latestItems.isEmpty()) {
-            throw new NoItemsFoundException("브랜드별 최신 상품 정보를 찾을 수 없습니다.");
-        }
+        // 각 브랜드별로 BrandTotalPriceDto 생성
+        return itemsByBrand.entrySet().stream()
+                .map(entry -> {
+                    String brandName = entry.getKey();
+                    List<Item> brandItems = entry.getValue();
+                    // 첫 번째 아이템으로 기본 DTO 생성
+                    BrandTotalPriceDto dto = BrandTotalPriceDto.of(brandItems.get(0));
 
-        return latestItems.entrySet().stream()
-                .map(brandEntry -> {
-                    String brandName = brandEntry.getKey();
-                    Map<String, Item> categoryItems = brandEntry.getValue();
-                    
-                    BrandTotalPriceDto dto = new BrandTotalPriceDto(brandName, 0);
-                    Map<String, Integer> categoryPrices = new HashMap<>();
-                    
-                    int totalPrice = 0;
-                    for (Map.Entry<String, Item> entry : categoryItems.entrySet()) {
-                        Item item = entry.getValue();
-                        if (item != null) {
-                            if (item.getPrice() == null) {
-                                throw new PriceNotDefinedException("가격이 정의되지 않은 상품이 있습니다. (상품 ID: " + item.getItemId() + ")");
-                            }
-                            categoryPrices.put(entry.getKey(), item.getPrice());
-                            totalPrice += item.getPrice();
-                        }
-                    }
-                    
-                    dto.setTotalPrice(totalPrice);
-                    dto.setCategoryPrices(categoryPrices);
+                    // 나머지 아이템들의 카테고리 가격 정보 추가
+                    brandItems.stream()
+                            .skip(1) // 첫 번째 아이템은 이미 처리했으므로 건너뜀
+                            .forEach(item -> {
+                                dto.getCategoryPrices().put(
+                                    item.getCategory().getCategoryName(),
+                                    item.getPrice()
+                                );
+                                // 총액 업데이트
+                                dto.setTotalPrice(dto.getTotalPrice() + item.getPrice());
+                            });
+
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -252,46 +240,42 @@ public class ItemService {
     }
 
     public BrandTotalPriceDto findLowestTotalPriceBrand() {
-        List<Item> allItems = itemRepository.findAll();
-        if (allItems.isEmpty()) {
+        List<Item> latestItems = itemRepository.findLatestItemsByBrandAndCategory();
+        if (latestItems.isEmpty()) {
             throw new NoItemsFoundException("등록된 상품이 없습니다");
         }
 
-        // 브랜드별, 카테고리별로 최신 상품만 필터링
-        Map<Brand, Map<Category, Item>> latestItemsByBrandAndCategory = allItems.stream()
+        // 브랜드별로 그룹화하여 총액 계산
+        return latestItems.stream()
             .collect(Collectors.groupingBy(
                 Item::getBrand,
-                Collectors.groupingBy(
-                    Item::getCategory,
-                    Collectors.collectingAndThen(
-                        Collectors.maxBy(Comparator.comparing(Item::getInsertTime)),
-                        opt -> opt.orElseThrow(() -> new NoItemsFoundException("상품을 찾을 수 없습니다"))
-                    )
+                Collectors.collectingAndThen(
+                    Collectors.toMap(
+                        item -> item.getCategory().getCategoryName(),
+                        Item::getPrice,
+                        (price1, price2) -> price1 // 동일 카테고리의 경우 첫 번째 값 사용 (이미 최신 데이터만 조회됨)
+                    ),
+                    (categoryPrices) -> {
+                        Brand brand = latestItems.stream()
+                            .filter(item -> item.getBrand().getBrandName().equals(categoryPrices.keySet().iterator().next()))
+                            .map(Item::getBrand)
+                            .findFirst()
+                            .orElseThrow(() -> new NoItemsFoundException("브랜드 정보를 찾을 수 없습니다"));
+                            
+                        int totalPrice = categoryPrices.values().stream()
+                            .mapToInt(Integer::intValue)
+                            .sum();
+                            
+                        return new BrandTotalPriceDto(
+                            brand.getBrandName(),
+                            categoryPrices,
+                            totalPrice
+                        );
+                    }
                 )
-            ));
-
-        // 브랜드별 총액 계산
-        return latestItemsByBrandAndCategory.entrySet().stream()
-            .map(brandEntry -> {
-                Brand brand = brandEntry.getKey();
-                Map<Category, Item> categoryItems = brandEntry.getValue();
-                
-                Map<String, Integer> categoryPrices = categoryItems.entrySet().stream()
-                    .collect(Collectors.toMap(
-                        entry -> entry.getKey().getCategoryName(),
-                        entry -> entry.getValue().getPrice()
-                    ));
-                
-                int totalPrice = categoryPrices.values().stream()
-                    .mapToInt(Integer::intValue)
-                    .sum();
-                
-                return new BrandTotalPriceDto(
-                    brand.getBrandName(),
-                    categoryPrices,
-                    totalPrice
-                );
-            })
+            ))
+            .values()
+            .stream()
             .min(Comparator.comparing(BrandTotalPriceDto::getTotalPrice))
             .orElseThrow(() -> new NoItemsFoundException("브랜드 정보를 찾을 수 없습니다"));
     }
