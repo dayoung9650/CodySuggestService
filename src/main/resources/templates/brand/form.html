@@ -13,9 +13,11 @@
                 <div class="card-body">
                     <form th:action="${brand.brandId == null ? '/brands' : '/brands/' + brand.brandId}"
                           th:object="${brand}"
-                   1       method="post"
+                          method="post"
                           class="needs-validation"
                           novalidate>
+                        <input type="hidden" name="_method" th:value="${brand.brandId == null ? 'POST' : 'PUT'}" />
+                        
                         <div class="mb-3">
                             <label for="brandName" class="form-label">브랜드명</label>
                             <input type="text"
@@ -24,8 +26,12 @@
                                    th:field="*{brandName}"
                                    required
                                    minlength="1"
-                                   maxlength="50">
-                            <div class="invalid-feedback">
+                                   maxlength="50"
+                                   th:classappend="${#fields.hasErrors('brandName')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('brandName')}" th:errors="*{brandName}">
+                                브랜드명 오류
+                            </div>
+                            <div class="invalid-feedback" th:unless="${#fields.hasErrors('brandName')}">
                                 브랜드명을 입력해주세요.
                             </div>
                         </div>

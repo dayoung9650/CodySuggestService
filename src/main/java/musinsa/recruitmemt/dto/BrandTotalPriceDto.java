@@ -13,19 +13,18 @@ import java.util.Map;
 @NoArgsConstructor
 public class BrandTotalPriceDto {
     private String brandName;
-    private Map<String, Integer> categoryPrices;
     private int totalPrice;
+    private Map<String, Integer> categoryPrices = new HashMap<>();
 
-    public BrandTotalPriceDto(String brandName, Map<String, Integer> categoryPrices, int totalPrice) {
+    public BrandTotalPriceDto(String brandName, int totalPrice) {
         this.brandName = brandName;
-        this.categoryPrices = categoryPrices;
         this.totalPrice = totalPrice;
     }
 
-    public BrandTotalPriceDto(String brandName, Integer totalPrice) {
+    public BrandTotalPriceDto(String brandName, int totalPrice, Map<String, Integer> categoryPrices) {
         this.brandName = brandName;
         this.totalPrice = totalPrice;
-        this.categoryPrices = new HashMap<>();
+        this.categoryPrices = categoryPrices;
     }
 
     public static BrandTotalPriceDto of(Item item) {
@@ -34,7 +33,6 @@ public class BrandTotalPriceDto {
         
         return new BrandTotalPriceDto(
             item.getBrand().getBrandName(),
-            categoryPrices,
             item.getPrice()
         );
     }

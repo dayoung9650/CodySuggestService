@@ -66,7 +66,6 @@ public class BrandService {
         log.info("브랜드 삭제 서비스 호출: id={}", id);
         try {
             Brand brand = findById(id);
-            log.info("삭제할 브랜드 조회 성공: id={}, name={}, items={}", id, brand.getBrandName(), brand.getItems().size());
             brandRepository.deleteById(id);
             log.info("브랜드 삭제 완료: id={}", id);
         } catch (Exception e) {

@@ -124,40 +124,6 @@ public class ItemController {
         return "redirect:/items";
     }
 
-    @PostMapping("/brands")
-    public String createBrandWithItems(@ModelAttribute BrandCreateDto brandCreateDto) {
-        // 브랜드 생성
-        Brand brand = new Brand();
-        brand.setBrandName(brandCreateDto.getBrandName());
-        brandService.save(brand);
-
-        // 각 카테고리별 상품 생성
-        brandCreateDto.getItems().forEach((categoryName, itemInfo) -> {
-            if (itemInfo.getName() != null && !itemInfo.getName().trim().isEmpty() 
-                && itemInfo.getPrice() != null) {
-                Category category = categoryService.findByCategoryName(categoryName);
-                
-                Item item = new Item();
-                item.setName(itemInfo.getName());
-                item.setPrice(itemInfo.getPrice());
-                item.setBrand(brand);
-                item.setCategory(category);
-                
-                itemService.save(item, brand.getBrandId());
-            }
-        });
-
-        return "redirect:/items";
-    }
-
-    @PostMapping("/brand")
-    public String createBrand(@RequestParam String brandName) {
-        Brand brand = new Brand();
-        brand.setBrandName(brandName);
-        brandService.save(brand);
-        return "redirect:/items";
-    }
-
     @GetMapping("/lowest-brand")
     public ResponseEntity<BrandTotalPriceDto> findLowestTotalPriceBrand() {
         return ResponseEntity.ok(itemService.findLowestTotalPriceBrand());

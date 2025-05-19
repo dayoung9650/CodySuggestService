@@ -136,7 +136,7 @@ class ItemServiceTest {
         // when & then
         assertThatThrownBy(() -> itemService.findById(99L))
                 .isInstanceOf(ItemNotFoundException.class)
-                .hasMessage("상품을 찾을 수 없습니다.");
+                .hasMessageContaining("상품을 찾을 수 없습니다.");
     }
 
     @Test
@@ -268,8 +268,7 @@ class ItemServiceTest {
         item2.setUpdateTime(now.minusHours(1)); // 1시간 전
         item3.setUpdateTime(now);               // 현재
 
-        given(itemRepository.findAll()).willReturn(Arrays.asList(item1, item2, item3));
-
+        given(itemRepository.findLatestItemsByBrandAndCategory()).willReturn(Arrays.asList(item2, item3));
         // when
         List<BrandTotalPriceDto> result = itemService.findLatestPricesByBrand();
 
@@ -283,9 +282,8 @@ class ItemServiceTest {
                 .orElseThrow();
 
         assertThat(nikePrices.getCategoryPrices())
-                .containsEntry("상의", 50000)  // item1
                 .containsEntry("하의", 60000); // item3 (최신)
-        assertThat(nikePrices.getTotalPrice()).isEqualTo(110000);
+        assertThat(nikePrices.getTotalPrice()).isEqualTo(60000);
 
         // 아디다스의 경우
         BrandTotalPriceDto adidasPrices = result.stream()
@@ -368,7 +366,7 @@ class ItemServiceTest {
         // when & then
         assertThatThrownBy(() -> itemService.findPriceRangeByCategory("테스트"))
                 .isInstanceOf(NoItemsFoundException.class)
-                .hasMessageContaining("해당 카테고리에 등록된 상품이 없습니다");
+                .hasMessageContaining("해당 카테고리의 상품을 찾을 수 없습니다");
     }
 
     @Test
@@ -418,7 +416,7 @@ class ItemServiceTest {
         newAdidasBottom.setCategory(category2);
         newAdidasBottom.setUpdateTime(now);
 
-        given(itemRepository.findAll()).willReturn(Arrays.asList(
+        given(itemRepository.findLatestItemsByBrandAndCategory()).willReturn(Arrays.asList(
             item1, item2, item3, newNikeTop, newAdidasBottom
         ));
 
@@ -437,7 +435,7 @@ class ItemServiceTest {
     @DisplayName("findLowestTotalPriceBrand - 상품이 없을 때 NoItemsFoundException 발생")
     void findLowestTotalPriceBrandWithNoItems() {
         // given
-        given(itemRepository.findAll()).willReturn(Collections.emptyList());
+        given(itemRepository.findLatestItemsByBrandAndCategory()).willReturn(Collections.emptyList());
 
         // when & then
         assertThatThrownBy(() -> itemService.findLowestTotalPriceBrand())

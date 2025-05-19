@@ -1,5 +1,6 @@
 package musinsa.recruitmemt.service;
 
+import musinsa.recruitmemt.exception.NoItemsFoundException;
 import musinsa.recruitmemt.model.Brand;
 import musinsa.recruitmemt.model.Item;
 import musinsa.recruitmemt.repository.BrandRepository;
@@ -11,10 +12,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -94,17 +97,16 @@ class BrandServiceTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 브랜드 조회 시 null 반환 테스트")
+    @DisplayName("존재하지 않는 브랜드 조회 시 exception 반환 테스트")
     void findNonExistentBrand() {
         // given
         given(brandRepository.findById(999L)).willReturn(Optional.empty());
 
-        // when
-        Brand foundBrand = brandService.findById(999L);
+        // when & then
+        assertThatThrownBy(() -> brandService.findById(999L))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("브랜드를 찾을 수 없습니다.");
 
-        // then
-        assertThat(foundBrand).isNull();
-        verify(brandRepository).findById(999L);
     }
 
     @Test
@@ -112,7 +114,13 @@ class BrandServiceTest {
     void deleteBrand() {
         // given
         Long brandId = 1L;
-
+        Brand brand = new Brand();
+        brand.setBrandName("나이키");
+        brand.setBrandId(brandId);
+        
+        // findById 모킹 설정
+        given(brandRepository.findById(brandId)).willReturn(Optional.of(brand));
+        
         // when
         brandService.delete(brandId);
 

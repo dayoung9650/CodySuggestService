@@ -60,7 +60,8 @@ class ItemControllerTest {
         mockMvc.perform(get("/items"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("item/list"))
-                .andExpect(model().attributeExists("priceTable"))
+                .andExpect(model().attributeExists("items"))
+                .andExpect(model().attributeExists("brands"))
                 .andExpect(model().attributeExists("categories"));
     }
 
@@ -150,8 +151,8 @@ class ItemControllerTest {
 
         // when & then
         mockMvc.perform(post("/items")
-                        .param("name", "반팔티")
-                        .param("price", "10000")
+                    .requestAttr("item", savedItem)
+                        .param("categoryId", "1")
                         .param("brandId", "1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/items"));
