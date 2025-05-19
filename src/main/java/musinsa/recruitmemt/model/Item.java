@@ -17,6 +17,7 @@ public class Item {
     @Column(name = "item_id")
     private Long itemId;
 
+    @Column(nullable = false)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -27,14 +28,15 @@ public class Item {
     @JoinColumn(name = "category_id")
     private Category category;
 
-
+    @Column(nullable = false)
     private Integer price;
 
-    @Column(name = "insert_time")
-    private LocalDateTime insertTime;
+    @Column(name = "update_time", nullable = false)
+    private LocalDateTime updateTime;
 
     @PrePersist
-    public void prePersist() {
-        this.insertTime = LocalDateTime.now();
+    @PreUpdate
+    public void updateTimestamp() {
+        this.updateTime = LocalDateTime.now();
     }
 }

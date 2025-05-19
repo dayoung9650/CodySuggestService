@@ -71,7 +71,7 @@
                 <td th:text="${item.brand.brandName}">브랜드</td>
                 <td th:text="${item.category.categoryName}">카테고리</td>
                 <td class="text-end" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + '원'">가격</td>
-                <td th:text="${#temporals.format(item.insertTime, 'yyyy-MM-dd HH:mm')}">등록일시</td>
+                <td th:text="${#temporals.format(item.updateTime, 'yyyy-MM-dd HH:mm')}">등록일시</td>
                 <td>
                     <a th:href="@{/items/{id}/edit(id=${item.itemId})}" class="btn btn-sm btn-outline-primary">수정</a>
                     <form th:action="@{/items/{id}(id=${item.itemId})}" 

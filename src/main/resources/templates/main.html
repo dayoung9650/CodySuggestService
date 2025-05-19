@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::div.content})}">
+<body>
+<div class="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>브랜드별 카테고리 가격표</h2>
+        <div>
+            <a href="/items" class="btn btn-primary">상품 관리</a>
+            <a href="/brands" class="btn btn-secondary ms-2">브랜드 관리</a>
+        </div>
+    </div>
+
+    <!-- 가격표 -->
+    <div class="table-responsive">ㅡ
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
+            <tr>
+                <th>브랜드</th>
+                <th th:each="category : ${categories}" th:text="${category.categoryName}">카테고리</th>
+                <th>총액</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="brand : ${priceTable}">
+                <td th:text="${brand.brandName}">브랜드명</td>
+                <td th:each="category : ${categories}" 
+                    class="text-end" 
+                    th:text="${brand.categoryPrices.get(category.categoryName) != null ? 
+                            #numbers.formatDecimal(brand.categoryPrices.get(category.categoryName), 0, 'COMMA', 0, 'POINT') + '원' : '-'}">
+                    가격
+                </td>
+                <td class="text-end fw-bold" 
+                    th:text="${#numbers.formatDecimal(brand.totalPrice, 0, 'COMMA', 0, 'POINT') + '원'}">
+                    총액
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 요약 정보 -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">카테고리별 최저가</h5>
+                    <a href="/items/lowest-prices" class="btn btn-outline-primary">자세히 보기</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">브랜드별 총액</h5>
+                    <a href="/items/brand-totals" class="btn btn-outline-primary">자세히 보기</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">카테고리별 가격 범위</h5>
+                    <form th:action="@{/items/category-range}" method="get" class="input-group">
+                        <select class="form-select" id="categorySelect" name="categoryName" required>
+                            <option value="">카테고리 선택</option>
+                            <option th:each="category : ${categories}" 
+                                    th:value="${category.categoryName}" 
+                                    th:text="${category.categoryName}">
+                            </option>
+                        </select>
+                        <button type="submit" class="btn btn-outline-primary">조회</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html> 
