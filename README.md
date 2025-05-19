@@ -3,8 +3,25 @@
 
 # Spec
 - JDK 17
+- Gradle 8.x
 - Spring Boot 3.2.3
-- H2 database
+- H2 Database
+
+# 빌드 방법
+> ./gradlew build
+
+# 전체 테스트 방법 (unit + integration)
+> ./gradlew test
+
+# integration 테스트 방법
+> ./gradlew test --tests "musinsa.recruitmemt.integration.AdminAndStatsIntegrationTest"
+
+# 애플리케이션 실행 
+> ./gradlew bootRun
+
+> ./gradlew build
+> 
+> java -jar build/libs/codySuggestService-1.0-SNAPSHOT.jar
 
 # REST API
 1. 카테고리별 최저가
