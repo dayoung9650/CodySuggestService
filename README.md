@@ -30,13 +30,13 @@
 
 # REST API
 1. 카테고리별 최저가
-> GET /api/items/lowest-prices
+> http://localhost:8080/api/items/lowest-prices
 
 2. 최저가 브랜드 총액
-> GET /api/items/lowest-brand
+> http://localhost:8080/api/items/lowest-brand
 
 3. 카테고리 가격 범위 API
-> GET /api/items/category-range?categoryName={categoryName}
+> http://localhost:8080/items/category-range?categoryName={categoryName}
 
 # WEB 
 > http://localhost:8080/
@@ -48,7 +48,7 @@
 > http://localhost:8080/items/brand-totals
 
 카테고리 가격 범위 API
-
+> http://localhost:8080/api/items/category-range?categoryName={categoryName}
 
 상품관리
 > http://localhost:8080/items
