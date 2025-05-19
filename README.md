@@ -23,6 +23,11 @@
 > 
 > java -jar build/libs/codySuggestService-1.0-SNAPSHOT.jar
 
+# 테스트 데이터
+- 애플리케이션 실행 시 DataInitializer를 통해 자동으로 초기 데이터가 생성됩니다.
+- 브랜드: A, B, C, D, E, F, G, H, I
+- 카테고리: 상의, 아우터, 바지, 스니커즈, 가방, 모자, 양말, 액세서리
+
 # REST API
 1. 카테고리별 최저가
 > GET /api/items/lowest-prices
